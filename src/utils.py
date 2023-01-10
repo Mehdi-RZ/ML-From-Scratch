@@ -1,4 +1,21 @@
 import random
+from enum import Enum, auto
+
+
+
+class OptmAlgo(Enum):
+    """Optimization Algorithms Available."""
+    
+    # Batch Gradient Descent
+    BGD = auto()
+    # Stochastic Gradient Descent
+    SGD = auto()
+    # Mini-Batch Gradient Descent
+    MBGD = auto()
+    # Gradient Descent with momentum
+    # Adam Optimization
+    # BFGS Optimization
+
 
 def shuffled_seq_index(m: int, iter: int) -> list:
     """Generates a list of :iter random indexes (from 0 to :m).

@@ -1,20 +1,6 @@
 import numpy as np
-from enum import Enum, auto
-from utils import shuffled_seq_index
+from utils import shuffled_seq_index, OptmAlgo
 
-"""
-TODO:
-"""
-
-class OptmAlgo(Enum):
-    """Optimization Algorithms Available."""
-    
-    # Batch Gradient Descent
-    BGD = auto()
-    # Stochastic Gradient Descent
-    SGD = auto()
-    # Mini-Batch Gradient Descent
-    MBGD = auto()
 
 
 class LinearRegression:
@@ -23,10 +9,11 @@ class LinearRegression:
 
         self.lr = learning_rate
         self.n_iters = n_iters
-        self.weights = None
-        self.bias = None
         self.optm_algo = optm_algo
         self.batch_size = batch_size
+
+        self.weights = None
+        self.bias = None
         self.costs = []
         
 
@@ -43,6 +30,8 @@ class LinearRegression:
         n_samples = X.shape[0]
 
         for _ in range(self.n_iters):
+
+            # predicted value with the current weights (default is zeros)
             y_predicted = np.dot(X, self.weights) + self.bias
             
             # compute gradients
@@ -53,13 +42,18 @@ class LinearRegression:
             self.weights -= self.lr * dw
             self.bias -= self.lr * db
 
-            self.costs.append( (1/n_samples) * np.sum( (y_predicted - y)**2 ) )
+            # cost value of the current iteration
+            cost = (1/n_samples) * np.sum( (y_predicted - y)**2 )
+            self.costs.append( cost )
 
 
     def stochastic_GD(self, X, y):
         """Stochastic gradient descent.
         data shapes: X : (m,n)  //  y : (m,)  //  X_i : (n,)  
         y_i : ()  //  y_pred : ()  //  Weight : (n,)
+
+        :param X: input data (m,n)
+        :param y: input target variable (m,)
         """
 
         print("Running stochastic G.D...")
@@ -69,6 +63,7 @@ class LinearRegression:
         
         for i in range(self.n_iters):
 
+            # predicted value with the current weights
             y_predicted = np.dot(X[idx[i]].T, self.weights) + self.bias
 
             # compute gradients
@@ -79,8 +74,9 @@ class LinearRegression:
             self.weights -= self.lr * dw
             self.bias -= self.lr * db
     
-            cost = (1/n_samples)* np.square(y_predicted-y[idx[i]])
+            cost = (1/n_samples)* np.sum( np.square(y_predicted-y[idx[i]]) )
             # self.costs.append(cost)
+
             # every 100th iteration record the cost
             if i%100==0: 
                 self.costs.append(cost)
@@ -101,6 +97,7 @@ class LinearRegression:
         for i in range(self.n_iters):
 
             end_idx = start_idx+self.batch_size
+            # predicted value with the current weights
             y_predicted = np.dot(X[idx[start_idx:end_idx]], self.weights) + self.bias
 
             # compute gradients
@@ -122,7 +119,11 @@ class LinearRegression:
     # ------------------------------------------------
 
     def fit(self, X, y):
-        """Adjust and fit parameters to the data."""
+        """Adjust and fit parameters to the data.
+        
+        :param X: input data (m,n)
+        :param y: input target variable (m,)
+        """
 
         # init parameters
         n_samples, n_features = X.shape
@@ -132,8 +133,8 @@ class LinearRegression:
         # reshaping target variable (m,1) to (m,)
         y = y.reshape(y.shape[0])
 
-        print(f"X --> shape: {X.shape}")
-        print(f"y--> shape: {y.shape}")
+        print(f"X     --> shape: {X.shape}")
+        print(f"y     --> shape: {y.shape}")
         print(f"THETA --> shape: {self.weights.shape}")
 
         # optimisation algorithm choice
@@ -148,12 +149,15 @@ class LinearRegression:
         
 
     def predict(self, X):
-        """Predict the approximated values of the target variable.
+        """Predict the approximated values of the target variable, using
+        the fitted weights .
         
         :param X : new data used to predict new values for the target variable
         :return: predicted values of the target variable for the X new data
         """
-
+        if self.weights is None:
+            print("cant predict, Weights not initialized!")
+            return None
         y_approximated = np.dot(X, self.weights) + self.bias
 
         return y_approximated

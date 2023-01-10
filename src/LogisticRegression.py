@@ -7,6 +7,7 @@ class LogisticRegression:
 
         self.learning_rate = learning_rate
         self.n_iters = n_iters
+        
         self.weights = None
         self.bias = None
         self.costs = []
@@ -32,7 +33,8 @@ class LogisticRegression:
             self.weights -= self.learning_rate * dw
             self.bias -= self.learning_rate * db
 
-            self.costs.append( (1/n_samples) * np.sum( (y_predicted - y)**2 ) )
+            cost = - (1/n_samples)* np.sum(y*np.log(y_predicted) + (1-y)*np.log(1-y_predicted))
+            self.costs.append( cost )
 
 
     def fit(self, X, y):
@@ -55,7 +57,7 @@ class LogisticRegression:
         z = X.dot(self.weights)
         y_predicted = (1/(1+np.exp(-z)))
 
-        return y_predicted
+        return y_predicted, z
 
 
     
